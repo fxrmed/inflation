@@ -75,8 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Users\form\source\repos\inflation\deps\zlib\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\form\source\repos\inflation\deps;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)deps\zlib\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)deps;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -155,6 +155,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="inflation.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="rawfile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inflation.h" />
+    <ClInclude Include="rawfile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

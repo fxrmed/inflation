@@ -1,82 +1,150 @@
-// inflation.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#include "inflation.h"
 
-#include <iostream>
-#include <filesystem>
-
-#include <zlib/deflate.h>
-
-#ifdef _DEBUG
-#pragma comment(lib, "zlib_debug.lib")
-#else
-#pragma comment(lib, "zlib.lib")
-#endif
-
-namespace fs = std::filesystem;
-
-#define VERSION 1.0
-
-void do_ascii_print()
+//from https://github.com/xensik/gsc-tool/blob/dev/src/utils/file.cpp
+std::vector<uint8_t> read_file(std::filesystem::path const& file)
 {
-	std::cout <<
-		R"(                                          
-.__        _____.__          __  .__               
-|__| _____/ ____\  | _____ _/  |_|__| ____   ____  
-|  |/    \   __\|  | \__  \\   __\  |/  _ \ /    \ 
-|  |   |  \  |  |  |__/ __ \|  | |  (  <_> )   |  \
-|__|___|  /__|  |____(____  /__| |__|\____/|___|  /
-        \/                \/                    \/ )" << '\n';
+	auto data = std::vector<uint8_t>{};
 
+	auto stream = std::ifstream{ file, std::ios::binary };
 
-	printf("v%.2f - debug\n", VERSION);
-}
-
-int main(int argc, const char* argv[])
-{
-	do_ascii_print();
-
-	if (argc < 3)
+	if (!stream.good() && !stream.is_open())
 	{
-		std::cout << "usage: inflation <path> <output_path>" << std::endl;
-		return 1;
-	}
-	else if (argc > 3)
-	{
-		std::cerr << "ERROR: too many arguments (could be spaces in the paths, if so, use citations)" << std::endl;
-		std::cout << "usage: inflation <path>" << std::endl;
-		return 1;
+		throw std::runtime_error(std::string("Could not open file: ") + file.string());
 	}
 
-	auto path = std::string(argv[1]);
-	auto output = std::string(argv[2]);
+	stream.seekg(0, std::ios::end);
+	std::streamsize size = stream.tellg();
+	stream.seekg(0, std::ios::beg);
 
-	std::cout << "got path: " << path << std::endl;
-	std::cout << "iterating path for files" << std::endl;
+	if (size > -1)
+	{
+		data.resize(static_cast<uint32_t>(size));
+		stream.read(reinterpret_cast<char*>(data.data()), size);
+	}
+
+	stream.close();
+
+	return data;
 }
 
-//basically copied from https://github.com/xensik/gsc-tool/blob/dev/src/tool/main.cpp so credit to xensik
-
-void iterate_files(const std::string& path)
+//<-->
+auto write_data(std::filesystem::path const& file, uint8_t const* data, size_t size) -> void
 {
-	if (fs::is_directory(path))
+	auto path = file;
+
+	std::filesystem::create_directories(path.remove_filename());
+
+	auto stream = std::ofstream{ file, std::ios::binary | std::ofstream::out };
+
+	if (stream.is_open())
 	{
-		for (auto const& entry : fs::recursive_directory_iterator(path))
+		stream.write(reinterpret_cast<char const*>(data), size);
+		stream.close();
+	}
+}
+
+
+inflation::inflation(const std::string& in, const std::string& out, const bool write_empty_files)
+{
+	this->in = in;
+	this->out = out;
+	this->write_empty_files = write_empty_files;
+}
+
+bool inflation::handle_file(const fs::path& file)
+{
+	auto data = read_file(file);
+
+	RawFile rawfile;
+	auto result = rawfile.deserialize(data);
+
+	if (result == deserialization_result::SUCCESS)
+	{
+		auto output_data = rawfile.inflate();
+
+		//there's probably a better way of doing this
+		auto file_path = file.generic_string();
+		auto output_path = fs::path(file_path.replace(0, this->in.size(), this->out));
+
+		write_data(output_path, output_data.data(), output_data.size());
+		
+		std::cout << "inflation::handle_file: Inflated file: " << rawfile.name << std::endl;
+
+		return true;
+	}
+	else if (result == deserialization_result::FILE_NOT_COMPRESSED)
+	{
+		auto file_path = file.generic_string();
+		auto output_path = fs::path(file_path.replace(0, this->in.size(), this->out));
+
+		write_data(output_path, rawfile.buffer.data(), rawfile.buffer.size());
+
+		printf("RawFile::deserialize - File %s is not compressed (?)\n", rawfile.name.data());
+
+		return true;
+	}
+	else if (result == deserialization_result::FILE_EMPTY)
+	{
+		auto file_path = file.generic_string();
+		auto output_path = fs::path(file_path.replace(0, this->in.size(), this->out));
+
+		if (write_empty_files) write_data(output_path, (const uint8_t*)"", 0);
+		
+
+		printf("RawFile::deserialize - File %s is empty\n", rawfile.name.data());
+
+		return true;
+	}
+
+	std::cerr << "inflation::handle_file - Invalid file: " << file.filename() << " qutting..." << std::endl;
+	return false;
+}
+
+bool inflation::iterate_files()
+{
+	std::cout << "inflation::iterate_files - iterating path for files" << std::endl << std::endl;
+
+	if (!std::filesystem::exists(out)) {
+		std::filesystem::create_directory(out); //this should not be needed i think (too much ps4 coding lately), cba to test but i was arsed to write this comment?
+		std::cout << "inflation::iterate_files - Output dir does not exist, creating directory" << std::endl;
+	}
+
+	//basically copied from https://github.com/xensik/gsc-tool/blob/dev/src/tool/main.cpp so credit to xensik
+
+	if (fs::is_directory(this->in))
+	{
+		for (auto const& entry : fs::recursive_directory_iterator(this->in))
 		{
-			if (entry.is_regular_file() && entry.path().extension() != ".stack")
+			if (entry.is_regular_file())
 			{
-				auto rel = fs::relative(entry, path).remove_filename();
+				auto file = entry.path().generic_string();
 
-				//do something
+				if (!handle_file(file))
+				{
+					return false;
+				}
 			}
 		}
 	}
-	else if (fs::is_regular_file(path))
+	else if (fs::is_regular_file(this->in))
 	{
+		auto file = fs::path(this->in).generic_string();
 
-		//do something
+		if (!handle_file(file))
+		{
+			return false;
+		}
 	}
 	else
 	{
-		std::cerr << "ERROR: bad path: " << path << std::endl;
+		std::cerr << "inflation::iterate_files - Input directory does not exist, exiting" << std::endl;
+		return false;
 	}
+
+	return true;
+}
+
+bool inflation::run()
+{
+	return iterate_files();
 }

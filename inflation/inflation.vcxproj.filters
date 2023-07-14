@@ -15,7 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inflation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rawfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="inflation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rawfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
