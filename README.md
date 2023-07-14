@@ -19,11 +19,11 @@ This tool was very hastely written and alot of the code is borrowed from [*xensi
 ## File Format
 The tool expects files with any file extension (or none) in the input directory to follow this file format:
 
-- A serialized LuaFile struct: <br/>
+- A serialized RawFile struct: <br/>
 ***name***: null-terminated string <br/>
 ***compressed_len***: 4 byte uint <br/>
 ***len***: 4 byte uint <br/>
-***buffer***: byte array[compressed_len or len] <br/>
+***buffer***: byte array[compressed_len or len if the file is not compressed] <br/>
 
 ## Build
 - Install Visual Studio (I use VS2017 but anything newer should work without issue)
