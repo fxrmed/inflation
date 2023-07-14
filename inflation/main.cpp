@@ -4,7 +4,7 @@
 #include <iostream>
 #include "inflation.h"
 
-#define VERSION 1.1
+#define VERSION 1.2
 
 void do_ascii_print()
 {
@@ -38,7 +38,7 @@ int main(int argc, const char* argv[])
 	}
 	else if (argc > 4)
 	{
-		std::cerr << "ERROR: too many arguments (could be spaces in the paths, if so, use citations)" << std::endl;
+		std::cout << "ERROR: too many arguments (could be spaces in the paths, if so, use citations)" << std::endl;
 		print_arguments();
 		return 1;
 	}
@@ -61,7 +61,7 @@ int main(int argc, const char* argv[])
 			//do nothing
 		}
 		else {
-			std::cerr << "ERROR: Invalid third argument, value should be true or false or there could be spaces in the paths, if so, use citations" << std::endl;
+			std::cout << "ERROR: Invalid third argument, value should be true or false or there could be spaces in the paths, if so, use citations" << std::endl;
 			print_arguments();
 			return 1;
 		}

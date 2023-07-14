@@ -96,7 +96,7 @@ bool inflation::handle_file(const fs::path& file)
 		return true;
 	}
 
-	std::cerr << "inflation::handle_file - Invalid file: " << file.filename() << " qutting..." << std::endl;
+	std::cout << "inflation::handle_file - Invalid file: " << file.filename() << " qutting..." << std::endl;
 	return false;
 }
 
@@ -137,7 +137,7 @@ bool inflation::iterate_files()
 	}
 	else
 	{
-		std::cerr << "inflation::iterate_files - Input directory does not exist, exiting" << std::endl;
+		std::cout << "inflation::iterate_files - Input directory does not exist, exiting" << std::endl;
 		return false;
 	}
 
