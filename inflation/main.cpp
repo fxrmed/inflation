@@ -4,7 +4,7 @@
 #include <iostream>
 #include "inflation.h"
 
-#define VERSION 1.0
+#define VERSION 1.1
 
 void do_ascii_print()
 {
@@ -23,8 +23,8 @@ void do_ascii_print()
 
 void print_arguments()
 {
-	std::cout << "usage: inflation <path> <write_empty_files>*" << std::endl;
-	std::cout << "*: Optional argument, default is false, values are true or false" << std::endl;
+	std::cout << "usage: inflation <input_path> <output_path> <write_empty_files>*" << std::endl;
+	std::cout << "*: Optional argument, default is true, values are true or false" << std::endl;
 }
 
 int main(int argc, const char* argv[])
@@ -33,7 +33,7 @@ int main(int argc, const char* argv[])
 
 	if (argc < 3)
 	{
-		std::cout << "usage: inflation <path> <output_path>" << std::endl;
+		print_arguments();
 		return 1;
 	}
 	else if (argc > 4)
