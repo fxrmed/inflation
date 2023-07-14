@@ -4,7 +4,7 @@ A small tool that uncompresses / inflates RawFile assets from Call of Duty games
 These files are compressed using zlib even though more or less all of the RawFile assets are smaller than 10mb (iirc there's like two files over 1mb).
 <sup><sub>I find this hilarious because the game is still enormous in file size</sub></sup>
 
-This tool was very hastely written and alot of the code is borrowed from [*xensik's* gsc-tool](https://github.com/xensik/gsc-tool).
+This tool was very hastily written and alot of the code is borrowed from [*xensik's* gsc-tool](https://github.com/xensik/gsc-tool).
 
 ## Usage
 ``./inflation.exe <input_path> <output_path> <write_empty_files>``
