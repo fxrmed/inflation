@@ -26,7 +26,7 @@ deserialization_result RawFile::deserialize(std::vector<uint8_t> const& data)
 		{
 			if ((len + name.size() + 1 + sizeof(len) * 2) != data.size())
 			{
-				std::cout << "RawFile::deserialize - File size do not match up for uncompressed file" << std::endl;
+				std::cout << "RawFile::deserialize - File size does not match up with the expected size" << std::endl;
 				return deserialization_result::INVALID_FILE;
 			}
 
@@ -63,7 +63,7 @@ deserialization_result RawFile::deserialize(std::vector<uint8_t> const& data)
 
 		return deserialization_result::SUCCESS;
 	}
-	catch (std::exception& e)
+	catch (std::exception&)
 	{
 		std::cout << "RawFile::deserialize - Invalid file (format?)" << std::endl;
 		return deserialization_result::INVALID_FILE;
